@@ -1,24 +1,37 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { usePoppins } from "@/constants/theme";
+import { useStore } from "@/store";
+import { Stack } from "expo-router";
+import { useEffect } from "react";
+import "react-native-reanimated";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+	const [fontsLoaded] = usePoppins();
+	const { loginControl } = useStore();
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+	useEffect(() => {
+		loginControl();
+	}, []);
+
+	if (!fontsLoaded) {
+		return null;
+	}
+
+	return (
+		<>
+			<Stack
+				screenOptions={{
+					headerShown: false,
+				}}
+			>
+				<Stack.Screen
+					name="modal"
+					options={{
+						presentation: "modal",
+						title: "Modal",
+						headerShown: true,
+					}}
+				/>
+			</Stack>
+		</>
+	);
 }
