@@ -1,19 +1,24 @@
 import Icon from "@/constants/icons/Icon";
+import IdCard from "@/constants/images/IdCard";
 import { Colors, Fonts } from "@/constants/theme";
-import { IdCardType, parseIdCardDetailed } from "@/utils/IdCard";
+import { IdCardType } from "@/types/addCardType";
+import { parseIdCardDetailed } from "@/utils/IdCard";
+import { saveImagePermanently } from "@/utils/saveImage";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { ImageManipulator } from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
 import { extractTextFromImage } from "expo-text-extractor";
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
+
 import {
-	Alert,
-	Dimensions,
-	Image,
-	Modal,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
+  Alert,
+  Dimensions,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -25,459 +30,467 @@ const h = w * ratio;
 const frameY = (height - h) / 2;
 
 type OcrIdCardProps = {
-	setImage: (data: any) => void;
-	setList: (data: IdCardType) => void;
+  setImage: (data: any) => void;
+  setList: (data: IdCardType) => void;
+  image: string;
 };
 
-const OcrIdCardFront: FC<OcrIdCardProps> = ({ setImage, setList }) => {
-	const insets = useSafeAreaInsets();
-	const [loading, setLoading] = useState(false);
-	const [showCamera, setShowCamera] = useState(false);
-	const [capturedImage, setCapturedImage] = useState<string | null>(null);
-	const [permission, requestPermission] = useCameraPermissions();
-	const cameraRef = useRef<CameraView>(null);
+const OcrIdCardFront: FC<OcrIdCardProps> = ({ setImage, setList, image }) => {
+  const insets = useSafeAreaInsets();
+  const [loading, setLoading] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<CameraView>(null);
 
-	const close = () => {
-		setCapturedImage(null);
-		setList({
-			tckn: null,
-			name: null,
-			surname: null,
-			birthdate: null,
-		});
-		setImage(null);
-		setLoading(false);
-		setShowCamera(false);
-	};
+  const close = () => {
+    setCapturedImage(null);
+    setList({
+      tckn: null,
+      name: null,
+      surname: null,
+      birthdate: null,
+      allData: [],
+    });
+    setImage(null);
+    setLoading(false);
+    setShowCamera(false);
+  };
 
-	const takePicture = async () => {
-		if (!permission?.granted) {
-			const result = await requestPermission();
-			if (!result.granted) {
-				Alert.alert(
-					"İzin Gerekli",
-					"Kamera kullanmak için izin vermelisiniz."
-				);
-				return;
-			}
-		}
+  const takePicture = async () => {
+    if (!permission?.granted) {
+      const result = await requestPermission();
+      if (!result.granted) {
+        Alert.alert("İzin Gerekli", "Kamera kullanmak için izin vermelisiniz.");
+        return;
+      }
+    }
 
-		setShowCamera(true);
-	};
+    setShowCamera(true);
+  };
 
-	const capturePhoto = async () => {
-		if (cameraRef.current) {
-			try {
-				const photo = await cameraRef.current.takePictureAsync({
-					quality: 1,
-				});
+  const capturePhoto = async () => {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 1,
+        });
 
-				if (photo) {
-					setShowCamera(false);
-					const croppedUri = await cropImageToFrame(photo.uri);
-					await processImage(croppedUri);
-				}
-			} catch (error) {
-				Alert.alert("Hata", "Fotoğraf çekerken bir hata oluştu.");
-				console.error("Capture Error:", error);
-			}
-		}
-	};
+        if (photo) {
+          setShowCamera(false);
+          const croppedUri = await cropImageToFrame(photo.uri);
+          await processImage(croppedUri);
+        }
+      } catch (error) {
+        Alert.alert("Hata", "Fotoğraf çekerken bir hata oluştu.");
+        console.error("Capture Error:", error);
+      }
+    }
+  };
 
-	const cropImageToFrame = async (imageUri: string) => {
-		try {
-			const imageRef = await ImageManipulator.manipulate(
-				imageUri
-			).renderAsync();
-			const imageWidth = imageRef.width;
-			const imageHeight = imageRef.height;
+  const cropImageToFrame = async (imageUri: string) => {
+    try {
+      const imageRef = await ImageManipulator.manipulate(
+        imageUri
+      ).renderAsync();
+      const imageWidth = imageRef.width;
+      const imageHeight = imageRef.height;
 
-			let scale: number;
-			let offsetX = 0;
-			let offsetY = 0;
+      let scale: number;
+      let offsetX = 0;
+      let offsetY = 0;
 
-			const scaleW = imageWidth / width;
-			const scaleH = imageHeight / height;
+      const scaleW = imageWidth / width;
+      const scaleH = imageHeight / height;
 
-			scale = Math.max(scaleW, scaleH);
-			offsetX = (imageWidth - width * scale) / 2;
-			offsetY = (imageHeight - height * scale) / 2;
+      scale = Math.max(scaleW, scaleH);
+      offsetX = (imageWidth - width * scale) / 2;
+      offsetY = (imageHeight - height * scale) / 2;
 
-			const cropX = frameX * scale + offsetX;
-			const cropY = frameY * scale + offsetY;
-			const cropWidth = w * scale;
-			const cropHeight = h * scale;
+      const cropX = frameX * scale + offsetX;
+      const cropY = frameY * scale + offsetY;
+      const cropWidth = w * scale;
+      const cropHeight = h * scale;
 
-			const croppedImageRef = await ImageManipulator.manipulate(imageUri)
-				.crop({
-					originX: cropX,
-					originY: cropY,
-					width: cropWidth,
-					height: cropHeight,
-				})
-				.renderAsync();
+      const croppedImageRef = await ImageManipulator.manipulate(imageUri)
+        .crop({
+          originX: cropX,
+          originY: cropY,
+          width: cropWidth,
+          height: cropHeight,
+        })
+        .renderAsync();
 
-			const result = await croppedImageRef.saveAsync();
-			return result.uri;
-		} catch (error) {
-			console.error("Crop Error:", error);
-			return imageUri;
-		}
-	};
+      const result = await croppedImageRef.saveAsync();
+      return result.uri;
+    } catch (error) {
+      console.error("Crop Error:", error);
+      return imageUri;
+    }
+  };
 
-	const processImage = async (imageUri: string) => {
-		try {
-			setLoading(true);
-			setCapturedImage(imageUri);
+  const processImage = async (imageUri: string) => {
+    try {
+      setLoading(true);
+      const permanentUri = await saveImagePermanently(imageUri, "card_front");
+      setCapturedImage(permanentUri);
+      setImage(permanentUri);
 
-			const extractedText = await extractTextFromImage(imageUri);
+      const extractedText = await extractTextFromImage(imageUri);
 
-			if (extractedText && extractedText.length > 0) {
-				const parsedData = parseIdCardDetailed(extractedText);
+      if (extractedText && extractedText.length > 0) {
+        const parsedData = parseIdCardDetailed(extractedText);
+        setList({ ...parsedData, allData: [...extractedText] });
+      }
 
-				setList(parsedData);
-				setImage(imageUri);
-			}
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      Alert.alert("Hata", "Metin tanıma sırasında bir hata oluştu.");
+      console.error("OCR Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-			setLoading(false);
-		} catch (error) {
-			setLoading(false);
-			Alert.alert("Hata", "Metin tanıma sırasında bir hata oluştu.");
-			console.error("OCR Error:", error);
-		}
-	};
+  const openGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("İzin Gerekli", "Galeriye erişim izni verilmedi!");
+      return;
+    }
 
-	return (
-		<View style={styles.container}>
-			<Text style={styles.labelText}>
-				Kimlik Kartının Ön Yüzünü Tarayın
-			</Text>
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      quality: 1,
+      allowsEditing: true,
+      aspect: [11, 17],
+      allowsMultipleSelection: false,
+      selectionLimit: 1,
+    });
 
-			{capturedImage ? (
-				<View style={styles.imageContainer}>
-					<Image
-						source={{ uri: capturedImage }}
-						style={{ width: w, height: h }}
-						resizeMode="contain"
-					/>
-					<TouchableOpacity
-						style={styles.closeButton}
-						onPress={close}
-					>
-						<Icon name="close" size={24} color={Colors.text} />
-					</TouchableOpacity>
-				</View>
-			) : (
-				<TouchableOpacity
-					style={[styles.button, { height: h }]}
-					onPress={takePicture}
-				>
-					{loading ? (
-						<Text style={styles.buttonText}>İşleniyor...</Text>
-					) : (
-						<Text style={styles.buttonText}>
-							📷 Kimlik Kartının ön yüzünün resmini çekin
-						</Text>
-					)}
-				</TouchableOpacity>
-			)}
+    if (result.assets) {
+      const image = result.assets[0];
+      await processImage(image.uri);
+      setShowCamera(false);
+    }
+  };
 
-			<Modal visible={showCamera} animationType="slide">
-				<View style={styles.cameraContainer}>
-					<CameraView
-						ref={cameraRef}
-						style={styles.camera}
-						facing="back"
-						ratio="4:3"
-					/>
+  useEffect(() => {
+    if (image) {
+      setCapturedImage(image);
+    } else {
+      setImage(null);
+      setCapturedImage(null);
+    }
+  }, [image]);
 
-					<View style={styles.overlay}>
-						<View style={styles.overlayTop}>
-							<Text style={styles.instructionText}>
-								Kimlik kartının ön yüzünü çerçeve içine
-								yerleştirin
-							</Text>
-						</View>
+  return (
+    <View style={styles.container}>
+      <Text style={styles.labelText}>Kimlik Kartının Ön Yüzünü Tarayın</Text>
 
-						<View style={styles.overlayMiddle}>
-							<View
-								style={[
-									styles.overlaySide,
-									{
-										height: h,
-									},
-								]}
-							/>
-							<View
-								style={[
-									styles.idCardFrame,
-									{
-										width: w,
-										height: h,
-									},
-								]}
-							>
-								<View
-									style={[
-										styles.corner,
-										styles.cornerTopLeft,
-									]}
-								/>
-								<View
-									style={[
-										styles.corner,
-										styles.cornerTopRight,
-									]}
-								/>
-								<View
-									style={[
-										styles.corner,
-										styles.cornerBottomLeft,
-									]}
-								/>
-								<View
-									style={[
-										styles.corner,
-										styles.cornerBottomRight,
-									]}
-								/>
-							</View>
-							<View
-								style={[
-									styles.overlaySide,
-									{
-										height: h,
-									},
-								]}
-							/>
-						</View>
+      {capturedImage ? (
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: capturedImage }}
+            style={{ width: w, height: h }}
+            resizeMode="contain"
+          />
+          <TouchableOpacity style={styles.closeButton} onPress={close}>
+            <Icon name="close" size={24} color={Colors.text} />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={[styles.button, { height: 80 }]}
+          onPress={takePicture}
+        >
+          {loading ? (
+            <Text style={styles.buttonText}>İşleniyor...</Text>
+          ) : (
+            <IdCard size={120} />
+          )}
+        </TouchableOpacity>
+      )}
 
-						<View style={styles.overlayBottom} />
-					</View>
+      <Modal visible={showCamera} animationType="slide">
+        <View style={styles.cameraContainer}>
+          <CameraView
+            ref={cameraRef}
+            style={styles.camera}
+            facing="back"
+            ratio="4:3"
+          />
 
-					<View
-						style={[
-							styles.cameraControls,
-							{ bottom: insets.bottom + 16 },
-						]}
-					>
-						<TouchableOpacity
-							style={styles.captureButton}
-							onPress={() => setShowCamera(false)}
-						>
-							<Icon name="back" size={32} color={Colors.text} />
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={styles.captureButton}
-							onPress={capturePhoto}
-						>
-							<Text style={styles.captureButtonText}>📷</Text>
-						</TouchableOpacity>
-					</View>
-				</View>
-			</Modal>
-		</View>
-	);
+          <View style={styles.overlay}>
+            <View style={styles.overlayTop}>
+              <Text style={styles.instructionText}>
+                Kimlik kartının ön yüzünü çerçeve içine yerleştirin
+              </Text>
+            </View>
+
+            <View style={styles.overlayMiddle}>
+              <View
+                style={[
+                  styles.overlaySide,
+                  {
+                    height: h,
+                  },
+                ]}
+              />
+              <View
+                style={[
+                  styles.idCardFrame,
+                  {
+                    width: w,
+                    height: h,
+                  },
+                ]}
+              >
+                <View style={[styles.corner, styles.cornerTopLeft]} />
+                <View style={[styles.corner, styles.cornerTopRight]} />
+                <View style={[styles.corner, styles.cornerBottomLeft]} />
+                <View style={[styles.corner, styles.cornerBottomRight]} />
+              </View>
+              <View
+                style={[
+                  styles.overlaySide,
+                  {
+                    height: h,
+                  },
+                ]}
+              />
+            </View>
+
+            <View style={styles.overlayBottom} />
+          </View>
+
+          <View style={[styles.cameraControls, { bottom: insets.bottom + 16 }]}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => setShowCamera(false)}
+            >
+              <Icon name="back" size={27} color={Colors.text} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.captureButton}
+              onPress={capturePhoto}
+            >
+              <Icon name="camera" size={32} color={Colors.text} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => openGallery()}
+            >
+              <Icon name="photos" size={27} color={Colors.text} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-	container: {
-		width: width - 32,
-		marginBottom: 8,
-	},
-	labelText: {
-		...Fonts.S14W400,
-		color: Colors.text,
-		marginBottom: 2,
-	},
-	button: {
-		borderRadius: 5,
-		padding: 8,
-		width: width - 32,
-		height: 42,
-		borderWidth: 1,
-		borderColor: Colors.text + "20",
-		backgroundColor: Colors.white,
-		paddingHorizontal: 10,
-		paddingVertical: 5,
-		justifyContent: "center",
-	},
-	buttonText: {
-		...Fonts.S14W400,
-		color: Colors.text + "80",
-		paddingTop: 2,
-	},
-	imageContainer: {
-		borderRadius: 5,
-		width: width - 32,
-		borderWidth: 1,
-		borderColor: Colors.text + "20",
-		backgroundColor: Colors.white,
-		justifyContent: "center",
-		overflow: "hidden",
-	},
-	closeButton: {
-		position: "absolute",
-		top: 10,
-		right: 10,
-		zIndex: 1,
-		backgroundColor: Colors.white + "80",
-		borderRadius: 5,
-		padding: 5,
-	},
+  container: {
+    width: width - 32,
+    marginBottom: 21,
+  },
+  labelText: {
+    ...Fonts.S14W400,
+    color: Colors.text,
+    marginBottom: 5,
+  },
+  button: {
+    justifyContent: "center",
+  },
+  buttonText: {
+    ...Fonts.S14W400,
+    color: Colors.text + "80",
+    paddingTop: 2,
+  },
+  imageContainer: {
+    borderRadius: 5,
+    width: width - 32,
+    borderWidth: 1,
+    borderColor: Colors.text + "20",
+    backgroundColor: Colors.white,
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1,
+    backgroundColor: Colors.white + "80",
+    borderRadius: 5,
+    padding: 5,
+  },
+  labelError: {
+    ...Fonts.S12W400,
+    color: Colors.danger,
+    marginTop: 6,
+  },
 
-	labelError: {
-		...Fonts.S12W400,
-		color: Colors.danger,
-		marginTop: 6,
-	},
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    textAlign: "center",
+    color: "#666",
+  },
 
-	loadingText: {
-		marginTop: 20,
-		fontSize: 16,
-		textAlign: "center",
-		color: "#666",
-	},
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+  },
 
-	sectionTitle: {
-		fontSize: 18,
-		fontWeight: "bold",
-		color: "#333",
-		marginBottom: 10,
-	},
+  resultContainer: {
+    marginTop: 20,
+    flex: 1,
+  },
+  textContainer: {
+    marginTop: 10,
+    maxHeight: 300,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  resultText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#333",
+  },
+  cameraContainer: {
+    flex: 1,
+  },
+  camera: {
+    flex: 1,
+  },
+  cameraControls: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
+    gap: 24,
+  },
+  backButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: Colors.white + "80",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backButtonHidden: {
+    width: 50,
+    height: 50,
+  },
+  captureButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  captureButtonText: {
+    fontSize: 30,
+  },
+  cancelButton: {
+    backgroundColor: "rgba(255,255,255,0.3)",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
 
-	resultContainer: {
-		marginTop: 20,
-		flex: 1,
-	},
-	textContainer: {
-		marginTop: 10,
-		maxHeight: 300,
-		backgroundColor: "#f9f9f9",
-		borderRadius: 8,
-		padding: 15,
-		borderWidth: 1,
-		borderColor: "#e0e0e0",
-	},
-	resultText: {
-		fontSize: 14,
-		lineHeight: 20,
-		color: "#333",
-	},
-	cameraContainer: {
-		flex: 1,
-	},
-	camera: {
-		flex: 1,
-	},
-	cameraControls: {
-		position: "absolute",
-		left: 0,
-		right: 0,
-		flexDirection: "row",
-		justifyContent: "center",
-		alignItems: "center",
-		paddingHorizontal: 40,
-		gap: 24,
-	},
-	captureButton: {
-		width: 70,
-		height: 70,
-		borderRadius: 35,
-		backgroundColor: "white",
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	captureButtonText: {
-		fontSize: 30,
-	},
-	cancelButton: {
-		backgroundColor: "rgba(255,255,255,0.3)",
-		paddingHorizontal: 20,
-		paddingVertical: 10,
-		borderRadius: 20,
-	},
-
-	overlay: {
-		...StyleSheet.absoluteFillObject,
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	overlayTop: {
-		flex: 1,
-		backgroundColor: "rgba(0,0,0,0.6)",
-		width: "100%",
-		justifyContent: "flex-end",
-		alignItems: "center",
-		paddingBottom: 20,
-	},
-	overlayMiddle: {
-		flexDirection: "row",
-		alignItems: "center",
-	},
-	overlaySide: {
-		flex: 1,
-		backgroundColor: "rgba(0,0,0,0.6)",
-		height: 220,
-	},
-	overlayBottom: {
-		flex: 1,
-		backgroundColor: "rgba(0,0,0,0.6)",
-		width: "100%",
-	},
-	idCardFrame: {
-		width: 340,
-		height: 220,
-		borderWidth: 2,
-		borderColor: "white",
-		borderStyle: "dashed",
-		borderRadius: 12,
-		position: "relative",
-	},
-	instructionText: {
-		color: "white",
-		fontSize: 16,
-		fontWeight: "600",
-		textAlign: "center",
-		textShadowColor: "rgba(0, 0, 0, 0.75)",
-		textShadowOffset: { width: 0, height: 1 },
-		textShadowRadius: 3,
-	},
-	corner: {
-		position: "absolute",
-		width: 30,
-		height: 30,
-		borderColor: "#00ff00",
-		borderWidth: 3,
-	},
-	cornerTopLeft: {
-		top: -2,
-		left: -2,
-		borderRightWidth: 0,
-		borderBottomWidth: 0,
-		borderTopLeftRadius: 12,
-	},
-	cornerTopRight: {
-		top: -2,
-		right: -2,
-		borderLeftWidth: 0,
-		borderBottomWidth: 0,
-		borderTopRightRadius: 12,
-	},
-	cornerBottomLeft: {
-		bottom: -2,
-		left: -2,
-		borderRightWidth: 0,
-		borderTopWidth: 0,
-		borderBottomLeftRadius: 12,
-	},
-	cornerBottomRight: {
-		bottom: -2,
-		right: -2,
-		borderLeftWidth: 0,
-		borderTopWidth: 0,
-		borderBottomRightRadius: 12,
-	},
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlayTop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    width: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingBottom: 20,
+  },
+  overlayMiddle: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  overlaySide: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    height: 220,
+  },
+  overlayBottom: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    width: "100%",
+  },
+  idCardFrame: {
+    width: 340,
+    height: 220,
+    borderWidth: 2,
+    borderColor: "white",
+    borderStyle: "dashed",
+    borderRadius: 12,
+    position: "relative",
+  },
+  instructionText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  corner: {
+    position: "absolute",
+    width: 30,
+    height: 30,
+    borderColor: "#00ff00",
+    borderWidth: 3,
+  },
+  cornerTopLeft: {
+    top: -2,
+    left: -2,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 12,
+  },
+  cornerTopRight: {
+    top: -2,
+    right: -2,
+    borderLeftWidth: 0,
+    borderBottomWidth: 0,
+    borderTopRightRadius: 12,
+  },
+  cornerBottomLeft: {
+    bottom: -2,
+    left: -2,
+    borderRightWidth: 0,
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 12,
+  },
+  cornerBottomRight: {
+    bottom: -2,
+    right: -2,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    borderBottomRightRadius: 12,
+  },
 });
 
 export default OcrIdCardFront;

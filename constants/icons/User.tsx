@@ -3,7 +3,7 @@ import React from "react";
 import Svg, { Path } from "react-native-svg";
 
 const UserIcon = ({ size = 20, color = "#171717" }: IconsType) => (
-  <Svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path
       d="M15.7498 6C15.7498 8.07107 14.0709 9.75 11.9998 9.75C9.92877 9.75 8.24984 8.07107 8.24984 6C8.24984 3.92893 9.92877 2.25 11.9998 2.25C14.0709 2.25 15.7498 3.92893 15.7498 6Z"
       stroke={color}

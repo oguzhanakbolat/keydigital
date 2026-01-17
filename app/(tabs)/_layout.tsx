@@ -1,36 +1,52 @@
+import CustomTabBar from "@/components/CustomTabBar";
+import SaveFile from "@/components/SaveFile";
+import { useUserStore } from "@/store";
 import { Redirect, Tabs } from "expo-router";
 import React from "react";
 
-import { Colors } from "@/constants/theme";
-import { useStore } from "@/store";
-
 export default function TabLayout() {
-	const { isAuthenticated } = useStore();
+  const { isAuthenticated } = useUserStore();
 
-	// Login değilse, auth sayfasına yönlendir
-	if (!isAuthenticated) {
-		return <Redirect href="/(auth)" />;
-	}
+  // Login değilse, auth sayfasına yönlendir
+  if (!isAuthenticated) {
+    return <Redirect href="/(auth)" />;
+  }
 
-	return (
-		<Tabs
-			screenOptions={{
-				tabBarActiveTintColor: Colors.tint,
-				headerShown: false,
-			}}
-		>
-			<Tabs.Screen
-				name="index"
-				options={{
-					title: "Home",
-				}}
-			/>
-			<Tabs.Screen
-				name="explore"
-				options={{
-					title: "Explore",
-				}}
-			/>
-		</Tabs>
-	);
+  return (
+    <>
+      <Tabs
+        tabBar={(props) => <CustomTabBar {...props} />}
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: { display: "none" },
+        }}
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Ana Sayfa",
+          }}
+        />
+        <Tabs.Screen
+          name="addperson"
+          options={{
+            title: "Ekle",
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profil",
+          }}
+        />
+        <Tabs.Screen
+          name="changePassword"
+          options={{
+            title: "Şifre",
+          }}
+        />
+      </Tabs>
+      <SaveFile />
+    </>
+  );
 }

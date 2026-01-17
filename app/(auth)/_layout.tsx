@@ -1,24 +1,24 @@
 import { Redirect, Stack } from "expo-router";
 import React from "react";
 
-import { useStore } from "@/store";
+import { useUserStore } from "@/store";
 
 export default function AuthLayout() {
-	const { isAuthenticated } = useStore();
+  const { isAuthenticated } = useUserStore();
 
-	if (isAuthenticated) {
-		return <Redirect href="/(tabs)" />;
-	}
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)" />;
+  }
 
-	return (
-		<Stack
-			screenOptions={{
-				headerShown: false,
-			}}
-		>
-			<Stack.Screen name="index" />
-			<Stack.Screen name="login" />
-			<Stack.Screen name="register" />
-		</Stack>
-	);
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="index" />
+      <Stack.Screen name="login" />
+      <Stack.Screen name="register" />
+    </Stack>
+  );
 }

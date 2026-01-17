@@ -2,6 +2,8 @@ import { IconType } from "@/types/iconType";
 import React from "react";
 import AcademyIcon from "./Academy";
 import BackIcon from "./Back";
+import BarIcon from "./Bar";
+import Camera from "./Camera";
 import CheckIcon from "./Check";
 import CircleCheckIcon from "./CircleCheck";
 import CircleCloseIcon from "./CircleClose";
@@ -20,6 +22,7 @@ import HomeIcon from "./Home";
 import MailIcon from "./Mail";
 import MinusIcon from "./Minus";
 import ModeIcon from "./Mode";
+import NextIcon from "./Next";
 import NotificationsIcon from "./Notifications";
 import NotVisibleIcon from "./NotVisible";
 import OrderNoIcon from "./OrderNo";
@@ -33,6 +36,7 @@ import PasswordIcon from "./Password";
 import PaymentIcon from "./Payment";
 import PeriodIcon from "./Period";
 import PhoneIcon from "./Phone";
+import PhotosIcon from "./Photos";
 import PlusIcon from "./Plus";
 import ProductsIcon from "./Products";
 import ProfileIcon from "./Profile";
@@ -46,11 +50,17 @@ import SystemAlertIcon from "./SystemAlert";
 import TimeSelectIcon from "./TimeSelect";
 import UniverseIcon from "./Universe";
 import UserIcon from "./User";
+import UsersIcon from "./Users";
+import VideoIcon from "./Video";
 import VisibleIcon from "./Visible";
 import WeightIcon from "./Weight";
 
 const Icon = ({ name, size, color }: IconType) => {
   switch (name) {
+    case "bar":
+      return <BarIcon size={size} color={color} />;
+    case "photos":
+      return <PhotosIcon size={size} color={color} />;
     case "close":
       return <CloseIcon size={size} color={color} />;
     case "right-arrow":
@@ -125,6 +135,8 @@ const Icon = ({ name, size, color }: IconType) => {
       return <EditIcon size={size} color={color} />;
     case "short":
       return <ShortIcon size={size} color={color} />;
+    case "video":
+      return <VideoIcon size={size} color={color} />;
     case "visible":
       return <VisibleIcon size={size} color={color} />;
     case "not-visible":
@@ -135,6 +147,8 @@ const Icon = ({ name, size, color }: IconType) => {
       return <MinusIcon size={size} color={color} />;
     case "user":
       return <UserIcon size={size} color={color} />;
+    case "users":
+      return <UsersIcon size={size} color={color} />;
     case "orders":
       return <OrdersIcon size={size} color={color} />;
     case "pass-lock":
@@ -147,6 +161,10 @@ const Icon = ({ name, size, color }: IconType) => {
       return <ModeIcon size={size} color={color} />;
     case "time-select":
       return <TimeSelectIcon size={size} color={color} />;
+    case "camera":
+      return <Camera size={size} color={color} />;
+    case "next":
+      return <NextIcon size={size} color={color} />;
     default:
       return null;
   }
