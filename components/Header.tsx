@@ -1,20 +1,27 @@
 import Icon from "@/constants/icons/Icon";
 import { Colors, Fonts } from "@/constants/theme";
-import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Header = ({
   name,
-  back,
+  back = false,
+  leftButton,
   rightButton,
+  printButton,
 }: {
   name: string;
   back?: boolean;
+  leftButton?: () => void;
   rightButton?: () => void;
+  printButton?: () => void;
 }) => {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {back ? (
@@ -24,6 +31,11 @@ const Header = ({
         >
           <Icon name="back" size={18} color={Colors.text} />
         </TouchableOpacity>
+      ) :  
+      !!leftButton ? (
+        <TouchableOpacity style={styles.leftButton} onPress={leftButton}>
+          <Icon name="back" size={21} color={Colors.text} />
+        </TouchableOpacity>
       ) : (
         <View style={styles.leftButton} />
       )}
@@ -31,6 +43,10 @@ const Header = ({
       {rightButton ? (
         <TouchableOpacity style={styles.rightButton} onPress={rightButton}>
           <Icon name="plus" size={21} color={Colors.text} />
+        </TouchableOpacity>
+      ) : !!printButton ? (
+        <TouchableOpacity style={styles.rightButton} onPress={printButton}>
+          <Ionicons name="print-outline" size={21} color={Colors.text} />
         </TouchableOpacity>
       ) : (
         <View style={styles.rightButton} />

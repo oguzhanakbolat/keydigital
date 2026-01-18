@@ -1,7 +1,9 @@
 import Icon from "@/constants/icons/Icon";
 import { Colors, Fonts } from "@/constants/theme";
 import { useUserStore } from "@/store";
+import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { useRouter } from "expo-router";
 import { FC } from "react";
 import {
   Dimensions,
@@ -33,14 +35,12 @@ type TabItemProps = {
   tab: TabConfig;
   isFocused: boolean;
   onPress: () => void;
-  onLongPress: () => void;
 };
 
 const TabItem: FC<TabItemProps> = ({
   tab,
   isFocused,
   onPress,
-  onLongPress,
 }) => {
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => ({
@@ -59,13 +59,13 @@ const TabItem: FC<TabItemProps> = ({
     return (
       <AnimatedPressable
         onPress={onPress}
-        onLongPress={onLongPress}
+        onLongPress={() => {}}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         style={[styles.centerTabContainer, animatedStyle]}
       >
         <View style={styles.centerTab}>
-          <Icon name={tab.icon as any} size={32} color={Colors.white} />
+          <Ionicons name={tab.icon as any} size={32} color={Colors.white} /> 
         </View>
         <Text
           style={[styles.centerLabel, isFocused && styles.centerLabelActive]}
@@ -79,7 +79,6 @@ const TabItem: FC<TabItemProps> = ({
   return (
     <AnimatedPressable
       onPress={onPress}
-      onLongPress={onLongPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={[styles.tabItem, animatedStyle]}
@@ -105,28 +104,14 @@ const HIDDEN_TAB_BAR_SCREENS = ["addWork"];
 
 const CustomTabBar: FC<BottomTabBarProps> = ({
   state,
-  descriptors,
-  navigation,
 }) => {
   const insets = useSafeAreaInsets();
   const { user } = useUserStore();
+  const router = useRouter();
   const currentRouteName = state.routes[state.index]?.name;
 
   if (HIDDEN_TAB_BAR_SCREENS.includes(currentRouteName)) {
     return null;
-  }
-
-  const TABS: TabConfig[] = [
-    { name: "index", label: "Ana Sayfa", icon: "home" },
-    { name: "list", label: "İş Listesi", icon: "bar" },
-    { name: "addWork", label: "Ekle", icon: "plus", isCenter: true },
-    { name: "profile", label: "Profil", icon: "profile" },
-  ];
-
-  if (user?.role?.name === "Authenticated") {
-    TABS.push({ name: "personnel", label: "Personel", icon: "users" });
-  } else {
-    TABS.push({ name: "changePassword", label: "Şifre", icon: "pass-lock" });
   }
 
   return (
@@ -139,39 +124,52 @@ const CustomTabBar: FC<BottomTabBarProps> = ({
       ]}
     >
       <View style={styles.tabBar}>
-        {TABS.map((tab, index) => {
-          const routeIndex = state.routes.findIndex((r) => r.name === tab.name);
-          const isFocused = state.index === routeIndex;
+        <TabItem
+            key="Panel"
+            tab={{ name: "Panel", label: "Panel", icon: "home" }}
+            isFocused={state.index === 0}
+            onPress={() => router.push("/(tabs)")}
+          />
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: "tabPress",
-              target: state.routes[routeIndex]?.key,
-              canPreventDefault: true,
-            });
+          <TabItem
+            key="İş Listesi"
+            tab={{ name: "list", label: "İş Listesi", icon: "bar" }}
+            isFocused={state.index === 1}
+            onPress={() => router.push("/(tabs)/list")}
+          />
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(tab.name);
-            }
-          };
+          <TabItem
+            key="Ekle"
+            tab={{ name: "addWork", label: "Ekle", icon: "add", isCenter: true }}
+            isFocused={state.index === 2}
+            onPress={() => router.push("/(tabs)/addWork")}
+          />
 
-          const onLongPress = () => {
-            navigation.emit({
-              type: "tabLongPress",
-              target: state.routes[routeIndex]?.key,
-            });
-          };
+          <TabItem
+            key="Profil"
+            tab={{ name: "profile", label: "Profil", icon: "user" }}
+            isFocused={state.index === 3}
+            onPress={() => router.push("/(tabs)/profile")}
+          />
 
-          return (
+         {
+          user?.role?.name === "Authenticated" ? (
             <TabItem
-              key={tab.name}
-              tab={tab}
-              isFocused={isFocused}
-              onPress={onPress}
-              onLongPress={onLongPress}
+              key="Personel"
+              tab={{ name: "personnel", label: "Personel", icon: "users" }}
+              isFocused={state.index === 4}
+              onPress={() => router.push("/(tabs)/personnel")}
             />
-          );
-        })}
+          ) : (
+            <TabItem
+              key="Şifre"
+              tab={{ name: "changePassword", label: "Şifre", icon: "pass-lock" }}
+              isFocused={state.index === 4}
+              onPress={() => router.push("/(tabs)/changePassword")}
+            />
+          )
+         }
+
       </View>
     </View>
   );

@@ -2,7 +2,7 @@
   "expo": {
     "name": "lock-smith",
     "slug": "lock-smith",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "lock-smith",
@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.oguzhan.locksmith",
       "infoPlist": {
-        "NFCReaderUsageDescription": "Kimlik kartı okumak için NFC kullanılacak."
+        "NFCReaderUsageDescription": "Kimlik kartı okumak için NFC kullanılacak.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -26,6 +27,9 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.oguzhan.locksmith",
       "permissions": [
+        "android.permission.NFC",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
         "android.permission.NFC",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
@@ -43,9 +47,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#C6DDFF",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#C6DDFF"
           }
         }
       ],
@@ -53,7 +57,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Kimlik kartı okumak için kamera kullanılacak."
+          "cameraPermission": "Kimlik kartı ve araç ruhsatı okumak için kamera kullanılacak."
         }
       ],
       "expo-web-browser",
@@ -83,6 +87,12 @@
       "eas": {
         "projectId": "d8c4074e-577a-466f-bebb-592086c7de51"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d8c4074e-577a-466f-bebb-592086c7de51"
     }
   }
 }

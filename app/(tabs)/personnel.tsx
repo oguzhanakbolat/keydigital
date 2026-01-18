@@ -45,7 +45,7 @@ const Personnel = () => {
   const router = useRouter();
   const [personnel, setPersonnel] = useState<any[]>([]);
   const addPersonnel = () => {
-    router.push("/(tabs)/addperson");
+    router.push("/(tabs)/addPersonnel");
   };
 
   const getPersonnel = async () => {

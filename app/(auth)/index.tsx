@@ -26,7 +26,7 @@ const WellcomeScreen = () => {
       ]}
     >
       <Background1 size={height} fill={Colors.primary} />
-      <Logo size={width * 0.4} fill="#002a5e"  />
+      <Logo size={width * 0.4} fill="#ffffff"  />
       <View style={styles.content}>
         <Text style={styles.text24}>LockSmith&apos;e hoşgeldiniz</Text>
         <Text style={styles.text16}>

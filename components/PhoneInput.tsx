@@ -14,6 +14,7 @@ type PhoneInputProps = {
   touched?: boolean;
   fullRadius?: boolean;
   labelColor?: string;
+  required?: boolean;
 };
 
 // Format: 05XX XXX XX XX
@@ -56,6 +57,7 @@ const PhoneInput: FC<PhoneInputProps> = ({
   touched = false,
   fullRadius = false,
   labelColor = Colors.text,
+  required = false,
 }) => {
   const handleChangeText = (text: string) => {
     const formatted = formatPhoneNumber(text);
@@ -64,7 +66,7 @@ const PhoneInput: FC<PhoneInputProps> = ({
 
   return (
     <View style={styles.label}>
-      <Text style={[styles.labelText, { color: labelColor }]}>{label}</Text>
+      <Text style={[styles.labelText, { color: labelColor }]}>{label}{required && <Text style={styles.requiredText}> *</Text>}</Text>
       <TextInput
         placeholder={placeholder}
         placeholderTextColor={Colors.text + "80"}
@@ -107,5 +109,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.text + "20",
     backgroundColor: Colors.white,
+  },
+  requiredText: {
+    ...Fonts.S14W400,
+    color: Colors.danger,
+    marginLeft: 4,
   },
 });

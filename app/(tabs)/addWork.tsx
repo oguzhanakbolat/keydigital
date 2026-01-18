@@ -93,6 +93,7 @@ const initialData: DataType = {
     notes: null,
   },
   requiredInformation: {
+    km: "",
     mechanicalPasswordCode: "",
     pinCode: "",
     csCode: "",
@@ -110,11 +111,23 @@ const initialData: DataType = {
   immobilizerFile: "",
 };
 
+const stepList = [
+  "Kimlik Kartı",
+  "Müşteri Bilgileri",
+  "Ruhsat",
+  "Ruhsat Bilgileri",
+  "Fotoğraflandırma",
+  "İşlem Bilgileri",
+  "Teslimat Fotoları",
+  "Zorunlu Bilgiler",
+  "Ödeme Bilgileri",
+  "Özet",
+];
+
 export default function AddCarScreen() {
   const { user } = useUserStore();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ pendingId?: string }>();
-  const [stepList, setStepList] = useState<string[]>(stepTitle);
   const [step, setStep] = useState(1);
   const [stepName, setStepName] = useState<string>(stepTitle[0]);
   const [data, setData] = useState<DataType>(initialData);
@@ -237,42 +250,6 @@ export default function AddCarScreen() {
     }));
   };
 
-  const stepListControl = () => {
-    let process = 0;
-    data.process.operations.forEach((operation: any) => {
-      if (operation.id > 1 && operation.id < 6) {
-        process++;
-      }
-    });
-
-    if (process > 0) {
-      setStepList([
-        "Kimlik Kartı",
-        "Müşteri Bilgileri",
-        "Ruhsat",
-        "Ruhsat Bilgileri",
-        "Fotoğraflandırma",
-        "İşlem Bilgileri",
-        "Teslimat Fotoları",
-        "Zorunlu Bilgiler",
-        "Ödeme Bilgileri",
-        "Özet",
-      ]);
-    } else {
-      setStepList([
-        "Kimlik Kartı",
-        "Müşteri Bilgileri",
-        "Ruhsat",
-        "Ruhsat Bilgileri",
-        "Fotoğraflandırma",
-        "İşlem Bilgileri",
-        "Teslimat Fotoları",
-        "Ödeme Bilgileri",
-        "Özet",
-      ]);
-    }
-  };
-
   const setStepNumber = () => {
     setStepName(stepList[step - 1] || "");
   };
@@ -280,7 +257,6 @@ export default function AddCarScreen() {
   const resetData = () => {
     const newId = new Date().getTime().toString();
     setStep(1);
-    setStepList(stepTitle);
     setStepName(stepTitle[0]);
     setData({
       ...initialData,
@@ -311,15 +287,10 @@ export default function AddCarScreen() {
   };
 
   const removeFromStorage = async () => {
-    console.log("data", data.id);
     if (data.id) {
       await deletePendingWork(data.id);
     }
   };
-
-  useEffect(() => {
-    stepListControl();
-  }, [data.process.operations.length]);
 
   useEffect(() => {
     setStepNumber();
@@ -356,57 +327,63 @@ export default function AddCarScreen() {
               <Text style={styles.circleText}>1</Text>
             </TouchableOpacity>
           )}
+
           {step >= 2 && (
             <TouchableOpacity onPress={() => setStep(2)} style={styles.circle}>
               <Text style={styles.circleText}>2</Text>
             </TouchableOpacity>
           )}
+
           {step >= 3 && (
             <TouchableOpacity onPress={() => setStep(3)} style={styles.circle}>
               <Text style={styles.circleText}>3</Text>
             </TouchableOpacity>
           )}
+
           {step >= 4 && (
             <TouchableOpacity onPress={() => setStep(4)} style={styles.circle}>
               <Text style={styles.circleText}>4</Text>
             </TouchableOpacity>
           )}
+
           {step >= 5 && (
             <TouchableOpacity onPress={() => setStep(5)} style={styles.circle}>
               <Text style={styles.circleText}>5</Text>
             </TouchableOpacity>
           )}
+
+
           {step >= 6 && (
             <TouchableOpacity onPress={() => setStep(6)} style={styles.circle}>
               <Text style={styles.circleText}>6</Text>
             </TouchableOpacity>
           )}
+
           {step >= 7 && (
             <TouchableOpacity onPress={() => setStep(7)} style={styles.circle}>
               <Text style={styles.circleText}>7</Text>
             </TouchableOpacity>
           )}
+
           {step >= 8 && (
             <TouchableOpacity onPress={() => setStep(8)} style={styles.circle}>
               <Text style={styles.circleText}>8</Text>
             </TouchableOpacity>
           )}
+
           {step >= 9 && (
             <TouchableOpacity onPress={() => setStep(9)} style={styles.circle}>
               <Text style={styles.circleText}>9</Text>
             </TouchableOpacity>
           )}
-          {stepList.length === 10 && (
-            <>
-              {step >= 10 && (
-                <TouchableOpacity
-                  onPress={() => setStep(10)}
-                  style={styles.circle}
-                >
-                  <Text style={styles.circleText}>10</Text>
-                </TouchableOpacity>
-              )}
-            </>
+       
+          {step >= 10 && (
+            <TouchableOpacity
+              onPress={() => setStep(10)}
+              style={styles.circle}
+            >
+              <Text style={styles.circleText}>10</Text>
+            </TouchableOpacity>
           )}
 
           <Text style={styles.stepTitle}>{stepList[step - 1]}</Text>
@@ -453,15 +430,13 @@ export default function AddCarScreen() {
               <Text style={styles.circleTextPassive}>9</Text>
             </View>
           )}
-          {stepList.length === 10 && (
-            <>
-              {step < 10 && (
-                <View style={styles.circlePassive}>
-                  <Text style={styles.circleTextPassive}>10</Text>
-                </View>
-              )}
-            </>
+       
+          {step < 10 && (
+            <View style={styles.circlePassive}>
+              <Text style={styles.circleTextPassive}>10</Text>
+            </View>
           )}
+         
         </View>
       </View>
 
@@ -541,6 +516,7 @@ export default function AddCarScreen() {
               isActive={stepName === "Ödeme Bilgileri"}
             />
             <RequiredInformation
+              allData={data}
               setStep={setStep}
               setData={setRequiredInformationList}
               list={data.requiredInformation}

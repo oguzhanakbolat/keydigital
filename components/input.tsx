@@ -30,6 +30,7 @@ type InputProps = {
   labelColor?: string;
   leftIcon?: string;
   fullRadius?: boolean;
+  required?: boolean;
 };
 
 const Input: FC<InputProps> = ({
@@ -49,6 +50,7 @@ const Input: FC<InputProps> = ({
   labelColor = Colors.text,
   leftIcon,
   fullRadius = false,
+  required = false,
 }) => {
   const [showPassword, setShowPassword] = useState(secureTextEntry);
 
@@ -58,7 +60,7 @@ const Input: FC<InputProps> = ({
 
   return (
     <View style={[styles.label, { width: w ? w : width - 32 }]}>
-      {label && <Text style={[styles.labelText, { color: labelColor }]}>{label}</Text>}
+      {label && <Text style={[styles.labelText, { color: labelColor }]}>{label}{required && <Text style={styles.requiredText}> *</Text>}</Text>}
       <TextInput
         placeholder={placeholder}
         placeholderTextColor={Colors.text + "80"}
@@ -145,4 +147,7 @@ const styles = StyleSheet.create({
     left: 8,
     zIndex: 10,
   },
+  requiredText: {
+    ...Fonts.S14W400,
+    color: Colors.danger,},
 });

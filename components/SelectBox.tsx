@@ -24,6 +24,7 @@ type SelectBoxProps = {
   options: string[] | null;
   fullRadius?: boolean;
   labelColor?: string;
+  required?: boolean;
 };
 
 const SelectBox: FC<SelectBoxProps> = ({
@@ -36,6 +37,7 @@ const SelectBox: FC<SelectBoxProps> = ({
   options,
   fullRadius = false,
   labelColor = Colors.text,
+  required = false,
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -47,7 +49,7 @@ const SelectBox: FC<SelectBoxProps> = ({
   return (
     <>
       <View style={styles.label}>
-        <Text style={[styles.labelText, { color: labelColor }]}>{label}</Text>
+        <Text style={[styles.labelText, { color: labelColor }]}>{label}{required && <Text style={styles.labelTextRequired}> *</Text>}</Text>
         <TouchableOpacity
           style={[styles.selectBox, fullRadius && { borderRadius: 50 }]}
           onPress={() =>
@@ -119,6 +121,10 @@ const styles = StyleSheet.create({
     ...Fonts.S12W400,
     color: Colors.danger,
     marginTop: 6,
+  },
+  labelTextRequired: {
+    ...Fonts.S14W400,
+    color: Colors.danger,
   },
   labelTextDisabled: {
     ...Fonts.S14W400,

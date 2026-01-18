@@ -23,6 +23,7 @@ type AutoSelectBoxProps = {
   error: string;
   touched: boolean;
   options: string[] | null;
+  required?: boolean;
 };
 
 const AutoSelectBox: FC<AutoSelectBoxProps> = ({
@@ -33,6 +34,7 @@ const AutoSelectBox: FC<AutoSelectBoxProps> = ({
   error,
   touched,
   options,
+  required = false,
 }) => {
   const [visible, setVisible] = useState(false);
   const [search, setSearch] = useState("");
@@ -70,7 +72,7 @@ const AutoSelectBox: FC<AutoSelectBoxProps> = ({
               : styles.labelTextDisabled
           }
         >
-          {label}
+          {label}{required && <Text style={styles.labelTextRequired}> *</Text>}
         </Text>
         <TouchableOpacity
           style={styles.selectBox}
@@ -116,7 +118,6 @@ const AutoSelectBox: FC<AutoSelectBoxProps> = ({
                     touched={touched}
                     keyboardType="default"
                     maxLength={100}
-                    multiline={false}
                     rows={1}
                     w={width - 64}
                   />
@@ -160,6 +161,10 @@ const styles = StyleSheet.create({
     ...Fonts.S12W400,
     color: Colors.danger,
     marginTop: 6,
+  },
+  labelTextRequired: {
+    ...Fonts.S14W400,
+    color: Colors.danger,
   },
   labelTextDisabled: {
     ...Fonts.S14W400,
@@ -216,9 +221,9 @@ const styles = StyleSheet.create({
     color: Colors.text,
     textTransform: "capitalize",
   },
-  modalContentHeaderClose: {
-    ...Fonts.S14W600,
-    color: Colors.text,
+  modalContentHeaderTextRequired: {
+    ...Fonts.S18W500,
+    color: Colors.danger,
   },
   modalContentItem: {
     padding: 16,

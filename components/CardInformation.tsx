@@ -92,6 +92,7 @@ const CardInformation: FC<CardInformationProps> = ({
             keyboardType="numeric"
             onBlur={() => formik.setFieldTouched("tckn")}
             maxLength={11}
+            required
           />
           <Input
             label="Adı"
@@ -102,6 +103,7 @@ const CardInformation: FC<CardInformationProps> = ({
             touched={formik.touched.name || false}
             keyboardType="default"
             onBlur={() => formik.setFieldTouched("name")}
+            required
           />
           <Input
             label="Soyadı"
@@ -112,6 +114,7 @@ const CardInformation: FC<CardInformationProps> = ({
             touched={formik.touched.surname || false}
             keyboardType="default"
             onBlur={() => formik.setFieldTouched("surname")}
+            required={true}
           />
           <DateInput
             label="Doğum Tarihi"
@@ -125,7 +128,7 @@ const CardInformation: FC<CardInformationProps> = ({
           <Input
             label="Email"
             placeholder="Email giriniz"
-            value={formik.values.email || ""}
+            value={(formik.values.email || "").toLowerCase()}
             onChangeText={formik.handleChange("email")}
             error={formik.errors.email || ""}
             touched={formik.touched.email || false}
@@ -140,6 +143,7 @@ const CardInformation: FC<CardInformationProps> = ({
             error={formik.errors.phone || ""}
             touched={formik.touched.phone || false}
             onBlur={() => formik.setFieldTouched("phone")}
+            required
           />
           <SelectBox
             label="İl"
@@ -149,6 +153,7 @@ const CardInformation: FC<CardInformationProps> = ({
             error={formik.errors.city || ""}
             touched={formik.touched.city || false}
             options={cityList}
+            required
           />
           <SelectBox
             label="İlçe"
@@ -160,6 +165,7 @@ const CardInformation: FC<CardInformationProps> = ({
             options={
               formik.values.city ? districtList[formik.values.city] : null
             }
+            required
           />
           <Input
             label="Adres"
@@ -171,6 +177,7 @@ const CardInformation: FC<CardInformationProps> = ({
             keyboardType="default"
             rows={2}
             onBlur={() => formik.setFieldTouched("address")}
+            required
           />
 
           <SelectBox

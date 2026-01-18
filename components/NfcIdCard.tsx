@@ -52,7 +52,6 @@ const NfcIdCard = () => {
 			await NfcManager.requestTechnology(NfcTech.Ndef);
 
 			const tag = await NfcManager.getTag();
-			console.log("NFC Tag bulundu:", tag);
 
 			if (tag) {
 				let data = "NFC Kart Bilgileri:\n\n";

@@ -4,8 +4,9 @@ import { useSaveStore, useUserStore } from "@/store";
 import { DataType } from "@/types/addCardType";
 import dateFormatter from "@/utils/date";
 import { useRouter } from "expo-router";
-import React, { FC } from "react";
-import { Alert, Dimensions, Image, StyleSheet, Text, View } from "react-native";
+import React, { FC, useState } from "react";
+import { Dimensions, Image, Modal, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
+import Button from "./Button";
 import FormLayout from "./FormLayout";
 
 const { height, width } = Dimensions.get("window");
@@ -82,6 +83,25 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
   const router = useRouter();
   const { setLoading, setSaveList, setListNumber } = useSaveStore();
   const { user } = useUserStore();
+  const [showModal, setShowModal] = useState(false);
+  const [modal, setModal] = useState({
+    title: "",
+    description: "",
+    onConfirm: () => {},
+    onCancel: () => {},
+    showModal: false,
+  });
+  
+
+  const closeModal = () => {
+    setModal({
+      title: "",
+      description: "",
+      onConfirm: () => {},
+      onCancel: () => {},
+      showModal: false,
+    });
+  };
 
   const saveData = async () => {
     let count = 0;
@@ -94,68 +114,326 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
     ];
 
     if (!data?.cardInformation?.tckn) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kimlik kartındaki TCKN'yi giriniz.",
+        onConfirm: () => { setStep(2); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
-    if (!(data?.cardInformation?.name && data?.cardInformation?.surname)) {
-      count++;
+    if (!data?.cardInformation?.name) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kimlik kartındaki adı giriniz.",
+        onConfirm: () => { setStep(2); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
-    if (
-      !(
-        data?.cardInformation?.address &&
-        data?.cardInformation?.district &&
-        data?.cardInformation?.city
-      )
-    ) {
-      count++;
+    if (!data?.cardInformation?.surname) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kimlik kartındaki soyadı giriniz.",
+        onConfirm: () => { setStep(2); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
-    if (!data?.registration?.brand || !data?.registration?.model) {
-      count++;
+    if (!data?.cardInformation?.phone) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kimlik kartı sahibinin telefon numarasını giriniz.",
+        onConfirm: () => { setStep(2); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.cardInformation?.city) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kimlik kartı sahibinin il bilgisini giriniz.",
+        onConfirm: () => { setStep(2); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.cardInformation?.district) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kimlik kartı sahibinin ilçe bilgisini giriniz.",
+        onConfirm: () => { setStep(2); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.cardInformation?.address) {  
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kimlik kartı sahibinin adres bilgisini giriniz.",
+        onConfirm: () => { setStep(2); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.plate ) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan plaka bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.chassisNumber ) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan şasi numarasını giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.brand ) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan marka bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.model) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan model bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
     if (!data?.registration?.year) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan yıl bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.plate) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan plaka bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
     if (!data?.registration?.chassisNumber) {
-      count++;
-    }
-
-    if (!(data?.registration?.name && data?.registration?.surname)) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan şasi numarasını giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
     if (!data?.registration?.tckn) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan TCKN bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
-    if (
-      !(
-        data?.registration?.address &&
-        data?.registration?.district &&
-        data?.registration?.city
-      )
-    ) {
-      count++;
+    if (!data?.registration?.name) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan isim bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.surname) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsatta bulunan soyisim bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.phone) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsat sahibinin telefon numarasını giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.city) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsat sahibinin il bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.district) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsat sahibinin ilçe bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.registration?.address) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ruhsat sahibinin adres bilgisini giriniz.",
+        onConfirm: () => { setStep(4); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
     if (data?.process?.operations.length === 0) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen en az bir işlem seçiniz. Yaptığınız işi ekleyiniz.",
+        onConfirm: () => { setStep(6); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
-    if (
-      data?.process?.operations.find((operation: any) =>
-        [2, 3, 4, 5].includes(operation.id)
-      ) &&
-      !data?.requiredInformation?.mechanicalPasswordCode
-    ) {
-      count++;
+    if (!data?.payment) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen ödeme bilgisini giriniz.",
+        onConfirm: () => { setStep(9); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (!data?.requiredInformation?.km) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kilometre bilgisini giriniz.",
+        onConfirm: () => { setStep(8); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (data?.process?.operations.find((operation: any) => [2, 3, 4, 5].includes(operation.id))  &&
+    !data?.requiredInformation?.mechanicalPasswordCode) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen mekanik şifre bilgisini giriniz.",
+        onConfirm: () => { setStep(8); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (data?.process?.operations.find((operation: any) => [2, 3, 4, 5].includes(operation.id))  &&
+    !data?.requiredInformation?.pinCode) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen PIN kodu bilgisini giriniz.",
+        onConfirm: () => { setStep(8); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (data?.process?.operations.find((operation: any) => [2, 3, 4, 5].includes(operation.id))  &&
+    !data?.requiredInformation?.csCode) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen CS kodu bilgisini giriniz.",
+        onConfirm: () => { setStep(8); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
+    }
+
+    if (data?.process?.operations.find((operation: any) => [2, 3].includes(operation.id))  &&
+    !data?.requiredInformation?.piece) {
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen kaç anahtar yaptığını giriniz.",
+        onConfirm: () => { setStep(8); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     }
 
     if (!data?.cardFrontImage) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen müşterinize ait kimlik ön yüzünü tarayınız.",
+        onConfirm: () => { setStep(1); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     } else {
       saveList.push({
         id: 2,
@@ -164,7 +442,14 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
     }
 
     if (!data?.cardBackImage) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen müşterinize ait kimlik arka yüzünü tarayınız.",
+        onConfirm: () => { setStep(1); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     } else {
       saveList.push({
         id: 3,
@@ -172,8 +457,16 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
       });
     }
 
+
     if (!data?.registrationImage) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen araca ait ruhsatı tarayınız.",
+        onConfirm: () => { setStep(3); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     } else {
       saveList.push({
         id: 4,
@@ -182,7 +475,14 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
     }
 
     if (!data?.plateImage) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen aracının plaka fotoğrafını ekleyiniz.",
+        onConfirm: () => { setStep(7); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     } else {
       saveList.push({
         id: 5,
@@ -191,7 +491,14 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
     }
 
     if (!data?.gaugeImage) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen aracının gösterge saati fotoğrafını ekleyiniz.",
+        onConfirm: () => { setStep(7); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     } else {
       saveList.push({
         id: 6,
@@ -200,7 +507,14 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
     }
 
     if (!data?.generalImage) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen aracının işem sonrası genel görünüş fotoğrafını ekleyiniz.",
+        onConfirm: () => { setStep(7); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     } else {
       saveList.push({
         id: 7,
@@ -208,7 +522,7 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
       });
     }
 
-    if (data?.immobilizerFile) {
+    if (data?.requiredInformation?.immobilizerFile) {
       saveList.push({
         id: 8,
         name: "İmmobilizer fotoğrafı yükleniyor...",
@@ -216,7 +530,14 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
     }
 
     if (data?.beforeImages.length === 0) {
-      count++;
+      setModal({
+        title: "Eksik Bilgi",
+        description: "Lütfen aracının işlem öncesi en az bir fotoğraflarını ekleyiniz.",
+        onConfirm: () => { setStep(7); closeModal() },
+        onCancel: () => { closeModal() },
+        showModal: true,
+      });
+      return;
     } else {
       for (let i = 0; i < data?.beforeImages.length; i++) {
         saveList.push({
@@ -228,17 +549,12 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
 
     setSaveList(saveList);
 
-    if (count > 0) {
-      Alert.alert("Hata", "Lütfen gerekli tüm alanları doldurunuz.");
-      return;
-    }
-
     setLoading(true);
 
     const newData: any = {
       idCardData: data.idCard.allData,
-      user: user?.id,
-      company: user?.company?.documentId,
+      user: user?.id + "",
+      company: user?.company?.id + "",
       payment: data.payment,
       registrationData: data.registration.allData,
       brand: data.registration.brand,
@@ -261,6 +577,7 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
       address: data.cardInformation.address,
       city: data.cardInformation.city,
       district: data.cardInformation.district,
+      km: data.requiredInformation.km || "",
       mechanicalPasswordCode:
         data.requiredInformation.mechanicalPasswordCode || "",
       pinCode: data.requiredInformation.pinCode || "",
@@ -343,16 +660,16 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
       setListNumber(7);
     }
 
-    if (data?.immobilizerFile) {
-      const fileType = data?.immobilizerFile.split(".")?.at(-1);
+    if (data?.requiredInformation?.immobilizerFile) {
+      const fileType = data?.requiredInformation?.immobilizerFile.split(".")?.at(-1);
       const fileName = "immobilizer_" + Date.now() + "." + fileType;
-      const response = await postData(data?.immobilizerFile, fileName);
+      const response = await postData(data?.requiredInformation?.immobilizerFile, fileName);
 
       if (response.success) {
         newData.immobilizerFile = response?.data?.[0]?.url || "";
       }
 
-      setListNumber(8 + data?.beforeImages.length + 1);
+      setListNumber(8);
     }
 
     if (data?.beforeImages.length > 0) {
@@ -381,17 +698,17 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
       newData.process = operations;
       newData.note = data?.process?.notes;
     }
-
+    
     await post("/processes", { data: newData });
 
     onSaveSuccess?.();
+    router.push("/");
 
     setLoading(false);
-
-    router.push("/");
   };
 
   return (
+    <>
     <FormLayout
       leftButtonPress={() => setStep(step - 1)}
       rightButtonPress={() => saveData()}
@@ -401,105 +718,80 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
         <SummaryInformationTitle title="Kimlik Bilgileri" />
         <SummaryInformationItem
           title="TCKN"
-          value={data?.cardInformation?.tckn || ""}
-          error
+          value={data?.cardInformation?.tckn || "-"}
         />
         <SummaryInformationItem
           title="Adı Soyadı"
           value={
-            data?.cardInformation?.name && data?.cardInformation?.surname
-              ? data?.cardInformation?.name +
-                " " +
-                data?.cardInformation?.surname
-              : ""
+            (data?.cardInformation?.name || "-") + " " + (data?.cardInformation?.surname || "-")
           }
-          error
         />
         <SummaryInformationItem
           title="Doğum Tarihi"
-          value={data?.cardInformation?.birthdate || ""}
+          value={data?.cardInformation?.birthdate || "-"}
         />
         <SummaryInformationItem
           title="Email"
-          value={data?.cardInformation?.email || ""}
+          value={data?.cardInformation?.email || "-"}
         />
         <SummaryInformationItem
           title="Telefon"
-          value={data?.cardInformation?.phone || ""}
+          value={data?.cardInformation?.phone || "-"}
         />
         <SummaryInformationItem
           title="Adres"
           value={
-            data?.cardInformation?.address &&
-            data?.cardInformation?.district &&
-            data?.cardInformation?.city
-              ? data?.cardInformation?.address +
-                " " +
-                data?.cardInformation?.district +
-                "/" +
-                data?.cardInformation?.city
-              : ""
+            (data?.cardInformation?.address || "-") +
+            " " +
+            (data?.cardInformation?.district || "-") +
+            "/" +
+            (data?.cardInformation?.city || "-")
           }
-          error
         />
       </>
       <View style={styles.infoContainer}>
         <SummaryInformationTitle title="Ruhsat Bilgileri" />
         <SummaryInformationItem
-          title="Marka / Mode"
+          title="Marka / Model"
           value={
-            data?.registration?.brand && data?.registration?.model
-              ? data?.registration?.brand + " / " + data?.registration?.model
-              : ""
+            (data?.registration?.brand  || "-") + " / " + (data?.registration?.model || "-")
           }
-          error
         />
         <SummaryInformationItem
           title="Yıl"
-          value={data?.registration?.year || ""}
-          error
+          value={data?.registration?.year || "-"}
         />
         <SummaryInformationItem
           title="Şasi Numarası"
-          value={data?.registration?.chassisNumber || ""}
-          error
+          value={data?.registration?.chassisNumber || "-"}
         />
         <SummaryInformationItem
           title="Ruhsat Sahibi"
           value={
-            data?.registration?.name && data?.registration?.surname
-              ? data?.registration?.name + " " + data?.registration?.surname
-              : ""
+            (data?.registration?.name || "-") + " " + (data?.registration?.surname || "-")
           }
-          error
         />
         <SummaryInformationItem
           title="TCKN"
-          value={data?.registration?.tckn || ""}
-          error
+          value={data?.registration?.tckn || "-"}
         />
         <SummaryInformationItem
           title="Email"
-          value={data?.registration?.email || ""}
+          value={data?.registration?.email || "-"}
         />
         <SummaryInformationItem
           title="Telefon"
-          value={data?.registration?.phone || ""}
+          value={data?.registration?.phone || "-"}
         />
         <SummaryInformationItem
           title="Adres"
           value={
-            data?.registration?.address &&
-            data?.registration?.district &&
-            data?.registration?.city
-              ? data?.registration?.address +
-                " " +
-                data?.registration?.district +
-                "/" +
-                data?.registration?.city
-              : ""
+            (data?.registration?.address || "-") +
+            " " +
+            (data?.registration?.district || "-") +
+            "/" +
+            (data?.registration?.city || "-")
           }
-          error
         />
       </View>
       <View style={styles.infoContainer}>
@@ -516,7 +808,7 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
         )}
         <SummaryInformationItem
           title="Notlar"
-          value={data?.process?.notes || ""}
+          value={data?.process?.notes || "-"}
         />
         <SummaryInformationItem
           title="Ücret"
@@ -529,17 +821,17 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
           <SummaryInformationTitle title="Zorunlu Bilgiler" />
           <SummaryInformationItem
             title="Mekanik Şifre"
-            value={data?.requiredInformation?.mechanicalPasswordCode || ""}
+            value={data?.requiredInformation?.mechanicalPasswordCode || "-"}
             error
           />
           <SummaryInformationItem
             title="PIN Kodu"
-            value={data?.requiredInformation?.pinCode || ""}
+            value={data?.requiredInformation?.pinCode || "-"}
             error
           />
           <SummaryInformationItem
             title="CS Kodu"
-            value={data?.requiredInformation?.csCode || ""}
+            value={data?.requiredInformation?.csCode || "-"}
             error
           />
           <SummaryInformationItem
@@ -556,7 +848,7 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
             data?.requiredInformation?.piece ? (
               <SummaryInformationItem
                 title="Anahtar Sayısı"
-                value={data?.requiredInformation?.piece?.toString() || ""}
+                value={data?.requiredInformation?.piece?.toString() || "-"}
               />
             ) : (
               <SummaryInformationError value="Lütfen kaç anahtar yaptığınızı giriniz." />
@@ -614,6 +906,26 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
         </View>
       </View>
     </FormLayout>
+    <Modal
+      visible={modal.showModal}
+      animationType="fade"
+      transparent={true}
+      onRequestClose={() => closeModal()}
+    >
+      <TouchableWithoutFeedback style={{ flex: 1 }} onPress={() => closeModal()}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalLine} />
+          <Text style={styles.modalTitle}>Hata</Text>
+          <Text style={styles.modalDescription}>{modal.description}</Text>
+          <View style={styles.modalButtons}>
+            <Button title="İptal" half onPress={() => closeModal()} />
+            <Button title="Tamam" half onPress={() => modal.onConfirm()} />
+          </View>
+        </View></View>
+      </TouchableWithoutFeedback>
+    </Modal>
+    </>
   );
 };
 
@@ -699,5 +1011,47 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: Colors.danger,
     padding: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    paddingVertical: 32,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    width,
+  },
+  modalLine: {
+    width: 100,
+    height: 5,
+    borderRadius: 2.5,
+    alignSelf: "center",
+    backgroundColor: Colors.text + "88",
+    marginBottom: 32,
+  },
+  modalTitle: {
+    ...Fonts.S14W500,
+    color: Colors.text,
+    width: "100%",
+    textAlign: "center",
+    marginBottom: 32,
+  },
+  modalDescription: {
+    ...Fonts.S14W400,
+    color: Colors.text,
+    textAlign: "center",
+    marginBottom: 32,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+    width: "100%",
+    paddingBottom: 64,
   },
 });

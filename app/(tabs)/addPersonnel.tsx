@@ -89,7 +89,7 @@ const AddPersonnel = () => {
   useFocusEffect(
     useCallback(() => {
       formik.resetForm();
-    }, [formik])
+    }, [])
   );
 
   return (

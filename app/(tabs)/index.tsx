@@ -87,7 +87,6 @@ export default function HomeScreen() {
 
   const getPendingData = async () => {
     const pendingWorks = await getPendingWorks();
-    console.log('pendingWorks', pendingWorks);
     setPendingWorks(pendingWorks);
   };
 
@@ -119,6 +118,7 @@ export default function HomeScreen() {
       getData();  
       getDays();
       setSelectedDate(new Date());
+
       return () => {
         getGeneralData();
         getPendingData();

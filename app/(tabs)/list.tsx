@@ -4,6 +4,7 @@ import Icon from "@/constants/icons/Icon";
 import { Colors, Fonts } from "@/constants/theme";
 import { get } from "@/services";
 import { useUserStore } from "@/store";
+import { dateFormatterWithTime } from "@/utils/date";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -73,7 +74,10 @@ const List = () => {
           renderItem={({ item }) => (
             <View style={styles.pendingWorkContainer}>
               <TouchableOpacity onPress={() => router.push(`/work/${item.documentId}`)}>
-                <Text>{item.name}</Text>
+                <View style={styles.pendingWorkNameContainer}>
+                  <Text style={styles.pendingWorkName}>{item.name}</Text>
+                  <Text style={styles.pendingWorkDate}>{dateFormatterWithTime(item.createdAt)}</Text>
+                </View>
                 <Text style={styles.pendingWorkStep}>
                   {item.plate} | {item.brand} {item.model} {item.year}
                 </Text>
@@ -147,5 +151,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: 100,
+  },
+  pendingWorkNameContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+  },
+  pendingWorkName: {
+    ...Fonts.S14W400,
+    color: Colors.text,
+  },
+  pendingWorkDate: {
+    ...Fonts.S12W400,
+    color: Colors.text + "80",
   },
 });

@@ -45,6 +45,7 @@ const PaymentInformation: FC<PaymentInformationProps> = ({
             keyboardType="numeric"
             error=""
             touched={false}
+            required
           />
         </View>
       </KeyboardAwareScrollView>

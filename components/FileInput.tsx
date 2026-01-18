@@ -23,6 +23,7 @@ type FileInputProps = {
   w?: number;
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
   fileType?: string[];
+  required?: boolean;
 };
 
 const FileInput: FC<FileInputProps> = ({
@@ -35,6 +36,7 @@ const FileInput: FC<FileInputProps> = ({
   w,
   textTransform = "none",
   fileType,
+  required = false,
 }) => {
   const handlePress = async () => {
     try {
@@ -56,7 +58,7 @@ const FileInput: FC<FileInputProps> = ({
 
   return (
     <View style={[styles.label, { width: w ? w : width - 32 }]}>
-      {label && <Text style={styles.labelText}>{label}</Text>}
+      {label && <Text style={styles.labelText}>{label}{required && <Text style={styles.requiredText}> *</Text>}</Text>}
       <TouchableOpacity
         style={[styles.input, { width: w ? w : width - 32 }]}
         onPress={handlePress}
@@ -104,5 +106,10 @@ const styles = StyleSheet.create({
   inputText: {
     ...Fonts.S14W400,
     color: Colors.text,
+  },
+  requiredText: {
+    ...Fonts.S14W400,
+    color: Colors.danger,
+    marginLeft: 4,
   },
 });

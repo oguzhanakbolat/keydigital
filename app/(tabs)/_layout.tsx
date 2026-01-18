@@ -28,7 +28,13 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="addperson"
+          name="list"
+          options={{
+            title: "İş Listesi",
+          }}
+        />
+        <Tabs.Screen
+          name="addWork"
           options={{
             title: "Ekle",
           }}
@@ -43,6 +49,36 @@ export default function TabLayout() {
           name="changePassword"
           options={{
             title: "Şifre",
+          }}
+        />
+        <Tabs.Screen
+          name="personnel"
+          options={{
+            title: "Personel",
+          }}
+        />
+        <Tabs.Screen
+          name="addPerson"
+          options={{
+            title: "Personel Ekle",
+          }}
+        />
+        <Tabs.Screen
+          name="listWait"
+          options={{
+            title: "Bekleyen İşler",
+          }}
+        />
+        <Tabs.Screen
+          name="work"
+          options={{
+            title: "İş Detay",
+          }}
+        />
+        <Tabs.Screen
+          name="editPersonnel"
+          options={{
+            title: "Personel Düzenle",
           }}
         />
       </Tabs>

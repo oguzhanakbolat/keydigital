@@ -125,6 +125,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             keyboardType="default"
             textTransform="uppercase"
             onBlur={() => formik.setFieldTouched("plate")}
+            required
           />
           <Input
             label="Şasi No"
@@ -136,6 +137,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             keyboardType="default"
             onBlur={() => formik.setFieldTouched("chassisNumber")}
             textTransform="uppercase"
+            required
           />
           <AutoSelectBox
             label="Marka"
@@ -145,6 +147,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             error={formik.errors.brand || ""}
             touched={formik.touched.brand || false}
             options={brandList}
+            required
           />
           <SelectBox
             label="Model"
@@ -158,6 +161,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
                 ? modelList[formik.values.brand as keyof typeof modelList]
                 : null
             }
+            required
           />
           <Input
             label="Yıl"
@@ -168,6 +172,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             touched={formik.touched.year || false}
             keyboardType="numeric"
             onBlur={() => formik.setFieldTouched("year")}
+            required
           />
           <View style={styles.registerationInformationButtonContainer}>
             <Text style={styles.registerationInformationButtonText}>
@@ -188,6 +193,19 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
               </TouchableOpacity>
             </View>
           </View>
+
+          <Input
+            label="TCKN"
+            placeholder="TCKN giriniz"
+            maxLength={11}
+            value={formik.values.tckn || ""}
+            onChangeText={formik.handleChange("tckn")}
+            error={formik.errors.tckn || ""}
+            touched={formik.touched.tckn || false}
+            keyboardType="numeric"
+            onBlur={() => formik.setFieldTouched("tckn")}
+            required
+          />
           <Input
             label="İsim"
             placeholder="İsim giriniz"
@@ -197,6 +215,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             touched={formik.touched.name || false}
             keyboardType="default"
             onBlur={() => formik.setFieldTouched("name")}
+            required
           />
           <Input
             label="Soyisim"
@@ -207,16 +226,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             touched={formik.touched.surname || false}
             keyboardType="default"
             onBlur={() => formik.setFieldTouched("surname")}
-          />
-          <Input
-            label="TCKN"
-            placeholder="TCKN giriniz"
-            value={formik.values.tckn || ""}
-            onChangeText={formik.handleChange("tckn")}
-            error={formik.errors.tckn || ""}
-            touched={formik.touched.tckn || false}
-            keyboardType="numeric"
-            onBlur={() => formik.setFieldTouched("tckn")}
+            required
           />
           <Input
             label="Email"
@@ -236,6 +246,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             error={formik.errors.phone || ""}
             touched={formik.touched.phone || false}
             onBlur={() => formik.setFieldTouched("phone")}
+            required
           />
           <SelectBox
             label="İl"
@@ -245,6 +256,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             error={formik.errors.city || ""}
             touched={formik.touched.city || false}
             options={cityList}
+            required
           />
           <SelectBox
             label="İlçe"
@@ -256,6 +268,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             options={
               formik.values.city ? districtList[formik.values.city] : null
             }
+            required
           />
           <Input
             label="Adres"
@@ -267,6 +280,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             keyboardType="default"
             onBlur={() => formik.setFieldTouched("address")}
             rows={2}
+            required
           />
         </>
       </KeyboardAwareScrollView>

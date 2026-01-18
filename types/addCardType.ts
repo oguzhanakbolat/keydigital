@@ -31,6 +31,7 @@ export type CheckProcessType = {
 };
 
 export type RequiredInformationType = {
+  km: string | number | null;
   mechanicalPasswordCode: string | null;
   pinCode: string | null;
   csCode: string | null;
