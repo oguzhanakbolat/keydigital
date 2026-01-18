@@ -2,7 +2,7 @@ import { Colors, Fonts } from "@/constants/theme";
 import { post, postData } from "@/services";
 import { useSaveStore, useUserStore } from "@/store";
 import { DataType } from "@/types/addCardType";
-import dateFormatter from "@/utils/date";
+import { dateFormatter } from "@/utils/date";
 import { useRouter } from "expo-router";
 import React, { FC, useState } from "react";
 import { Dimensions, Image, Modal, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
@@ -83,7 +83,6 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
   const router = useRouter();
   const { setLoading, setSaveList, setListNumber } = useSaveStore();
   const { user } = useUserStore();
-  const [showModal, setShowModal] = useState(false);
   const [modal, setModal] = useState({
     title: "",
     description: "",
@@ -104,7 +103,6 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
   };
 
   const saveData = async () => {
-    let count = 0;
 
     const saveList = [
       {
