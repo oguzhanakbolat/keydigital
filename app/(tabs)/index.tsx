@@ -1,7 +1,9 @@
+import SelectModal from "@/components/SelectModal";
 import Icon from "@/constants/icons/Icon";
 import { Colors, Fonts } from "@/constants/theme";
 import { get } from "@/services";
 import { useUserStore } from "@/store";
+import { moneyFormatter } from "@/utils/money";
 import { getPendingWorks, PendingWork } from "@/utils/pendingWorks";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -24,6 +26,13 @@ export default function HomeScreen() {
   const [days, setDays] = useState<Date[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const dayScrollRef = useRef<ScrollView>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [profit, setProfit] = useState<any>({
+    date: "week",
+    total: 0,
+    name: "Bu Hafta",
+  });
+
 
   const getGeneralData = async () => {
     let url = "/processes";
@@ -88,6 +97,56 @@ export default function HomeScreen() {
   const getPendingData = async () => {
     const pendingWorks = await getPendingWorks();
     setPendingWorks(pendingWorks);
+  };
+
+  const getProfit = async (date: string) => {
+    setShowModal(false);
+    let url = "/processes";
+
+    const profitData = {
+      date: date,
+      total: 0,
+      name: date,
+    };
+
+    if(who === "company") {
+      url += "?filters[company][$eq]=" + user?.company?.id;
+    } else {
+      url += "?filters[user][$eq]=" + user?.id + "&filters[company][$eq]=" + user?.company?.id;
+    }
+
+    if(date === "today") {
+      const today = new Date();
+      const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString() ;
+      const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString(); 
+
+      url += "&filters[createdAt][$gte]=" + startDate + "&filters[createdAt][$lte]=" + endDate;
+      profitData.name = "Bugün";
+    } else if(date === "week") {
+      const startDate = new Date(new Date().setDate(new Date().getDate() - new Date().getDay())).toISOString() ;
+      const endDate = new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 6)).toISOString(); 
+
+      url += "&filters[createdAt][$gte]=" + startDate + "&filters[createdAt][$lte]=" + endDate;
+      profitData.name = "Bu Hafta";
+    } else if(date === "month") {
+      const startDate = new Date(new Date().setDate(1)).toISOString() ;
+      const endDate = new Date(new Date().setDate(new Date().getDate())).toISOString(); 
+
+      url += "&filters[createdAt][$gte]=" + startDate + "&filters[createdAt][$lte]=" + endDate;
+      profitData.name = "Bu Ay";
+    } else if(date === "year") {
+      const startDate = new Date(new Date().getFullYear(), 0, 1).toISOString();
+      const endDate = new Date(new Date().getFullYear(), 11, 31, 23, 59, 59).toISOString();
+
+      url += "&filters[createdAt][$gte]=" + startDate + "&filters[createdAt][$lte]=" + endDate;
+      profitData.name = "Bu Yıl";
+    }
+
+    const response = await get(url);
+    if(response.success) {
+      profitData.total = response.data.data.reduce((acc: number, curr: any) => acc + curr.payment, 0);
+      setProfit(profitData);
+    }
   };
 
   const getDays = async () => {
@@ -158,6 +217,17 @@ export default function HomeScreen() {
       </View>
 
       <View style={[styles.contentContainer, { height: height - insets.bottom - 220 }]}>
+        <View style={styles.profitContainer}>
+          <TouchableOpacity style={styles.profitItemContainer} onPress={() => setShowModal(true)}>
+            <Ionicons name="calendar-outline" size={18} color={Colors.text + "80"} />
+            <Text style={styles.profitItemTitle}>{profit.name} Kazançınız</Text>
+          </TouchableOpacity>
+          <View style={styles.profitValueContainer}>
+            <Text style={styles.profitValue}>{moneyFormatter(profit.total)}</Text>
+            <Ionicons name="cash-outline" size={18} color={Colors.text + "80"} />
+          </View>
+        </View>
+
         <View style={styles.dayContainer}>
           <ScrollView style={styles.dayScroll} horizontal showsHorizontalScrollIndicator={false} ref={dayScrollRef}>
             {
@@ -233,6 +303,24 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+      <SelectModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+      >
+      <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.itemButton} onPress={() => getProfit("today")}>
+              <Text style={styles.itemTitle}>Bugün</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.itemButton} onPress={() => getProfit("week")}>
+              <Text style={styles.itemTitle}>Bu Hafta</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.itemButton} onPress={() => getProfit("month")}>
+              <Text style={styles.itemTitle}>Bu Ay</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.itemButton} onPress={() => getProfit("year")}>
+              <Text style={styles.itemTitle}>Bu Yıl</Text>
+            </TouchableOpacity></View>
+    </SelectModal>
     </View> 
   );
 }
@@ -380,13 +468,11 @@ const styles = StyleSheet.create({
     ...Fonts.S12W400,
     color: Colors.text,
   },
-
   dayContainer: {
     flexDirection: "row",
     gap: 8,
     marginBottom: 8,
   },
-
   day: {
     width: 60,
     height: 60,
@@ -475,5 +561,55 @@ const styles = StyleSheet.create({
   dayScroll: {
     width: "100%",
     marginHorizontal: 16,
+  },
+  profitContainer: {
+    gap: 8,
+    marginHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.white,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  profitItemContainer: {
+    padding: 16,
+    width: (width - 48) / 2,
+    borderRadius: 8,
+    flexDirection: "row",
+    gap: 8,
+  },
+  profitItemTitle: {
+    ...Fonts.S12W500,
+    color: Colors.text + "80",
+  },
+  profitValueContainer: {
+    padding: 16,
+    width: (width - 48) / 2,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    flexDirection: "row",
+    gap: 8,
+  },
+  profitValue: {
+    ...Fonts.S14W600,
+    color: Colors.text,
+  },
+
+  modalContent: {
+    gap: 8,
+    width: "100%",
+    paddingHorizontal: 8
+  },
+  itemButton: {
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.text + "10",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  itemTitle: {
+    ...Fonts.S14W500,
+    color: Colors.text,
   },
 });
