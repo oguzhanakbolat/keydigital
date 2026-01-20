@@ -218,7 +218,7 @@ export default function HomeScreen() {
 
           <View style={styles.content}>
             <View style={styles.pendingWorksContainer}>
-              <Text style={styles.pendingWorksTitle}>Bekleyen İş</Text>
+              <Text style={styles.pendingWorksTitle}>Kayıt Bekleyen İşler</Text>
               {pendingWorks.length > 0 ? (
                 <TouchableOpacity onPress={() => router.push("/listWait")}>
                     <Text style={styles.pendingWorksText}>{pendingWorks.length}</Text>

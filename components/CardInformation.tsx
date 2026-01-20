@@ -175,9 +175,8 @@ const CardInformation: FC<CardInformationProps> = ({
             error={formik.errors.address || ""}
             touched={formik.touched.address || false}
             keyboardType="default"
-            rows={2}
+            rows={3}
             onBlur={() => formik.setFieldTouched("address")}
-            required
           />
 
           <SelectBox

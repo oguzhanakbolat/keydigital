@@ -279,8 +279,7 @@ const RegisterationInformation: FC<RegisterationInformationProps> = ({
             touched={formik.touched.address || false}
             keyboardType="default"
             onBlur={() => formik.setFieldTouched("address")}
-            rows={2}
-            required
+            rows={3}
           />
         </>
       </KeyboardAwareScrollView>

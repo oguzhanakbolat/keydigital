@@ -177,17 +177,6 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
       return;
     }
 
-    if (!data?.cardInformation?.address) {  
-      setModal({
-        title: "Eksik Bilgi",
-        description: "Lütfen kimlik kartı sahibinin adres bilgisini giriniz.",
-        onConfirm: () => { setStep(2); closeModal() },
-        onCancel: () => { closeModal() },
-        showModal: true,
-      });
-      return;
-    }
-
     if (!data?.registration?.plate ) {
       setModal({
         title: "Eksik Bilgi",
@@ -324,17 +313,6 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
       setModal({
         title: "Eksik Bilgi",
         description: "Lütfen ruhsat sahibinin ilçe bilgisini giriniz.",
-        onConfirm: () => { setStep(4); closeModal() },
-        onCancel: () => { closeModal() },
-        showModal: true,
-      });
-      return;
-    }
-
-    if (!data?.registration?.address) {
-      setModal({
-        title: "Eksik Bilgi",
-        description: "Lütfen ruhsat sahibinin adres bilgisini giriniz.",
         onConfirm: () => { setStep(4); closeModal() },
         onCancel: () => { closeModal() },
         showModal: true,
@@ -710,6 +688,7 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
     <FormLayout
       leftButtonPress={() => setStep(step - 1)}
       rightButtonPress={() => saveData()}
+      lastItem
       isActive={isActive}
     >
       <>
@@ -739,8 +718,7 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
         <SummaryInformationItem
           title="Adres"
           value={
-            (data?.cardInformation?.address || "-") +
-            " " +
+            (data?.cardInformation?.address ? data?.cardInformation?.address + " " : "") +
             (data?.cardInformation?.district || "-") +
             "/" +
             (data?.cardInformation?.city || "-")
@@ -784,8 +762,8 @@ const SummaryInformation: FC<SummaryInformationProps> = ({
         <SummaryInformationItem
           title="Adres"
           value={
-            (data?.registration?.address || "-") +
-            " " +
+            (data?.registration?.address ?  data?.registration?.address + " " : "") +
+
             (data?.registration?.district || "-") +
             "/" +
             (data?.registration?.city || "-")

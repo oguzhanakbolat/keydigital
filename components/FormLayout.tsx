@@ -16,6 +16,7 @@ type FormLayoutProps = {
   isActive: boolean;
   leftButtonPress: () => void;
   rightButtonPress: () => void;
+  lastItem?: boolean;
 };
 
 const FormLayout: FC<FormLayoutProps> = ({
@@ -23,6 +24,7 @@ const FormLayout: FC<FormLayoutProps> = ({
   leftButtonPress,
   rightButtonPress,
   isActive,
+  lastItem = false,
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -49,6 +51,7 @@ const FormLayout: FC<FormLayoutProps> = ({
       <SaveButtons
         leftButtonPress={leftButtonPress}
         rightButtonPress={rightButtonPress}
+        lastItem={lastItem}
       />
     </View>
   );
